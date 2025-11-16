@@ -1,4 +1,4 @@
-funkcija broj[][] transponuj(moj niz broj a[][], moj broj n, moj broj m) {
+ niz transponuj(moj niz a[][], moj broj n, moj broj m) {
     moj niz broj t[m][n];
     moj broj i;
     moj broj j;
@@ -15,8 +15,8 @@ funkcija broj[][] transponuj(moj niz broj a[][], moj broj n, moj broj m) {
 }
 
 zapocni_igru
-    moj niz broj m[2][3];
-    moj niz broj mt[3][2];
+    moj niz m[2][3];
+    moj niz mt[3][2];
 
     m[0][0] = 1;
     m[0][1] = 2;
@@ -28,4 +28,4 @@ zapocni_igru
     mt = transponuj(m, 2, 3);
 
     napisi(mt);
-zavrsi_igru
+zavrsi_igru;

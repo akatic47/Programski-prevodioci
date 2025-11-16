@@ -33,7 +33,9 @@ public class Lexer {
             Map.entry("upisi", TokenType.UPISI),
             Map.entry("napisi", TokenType.NAPISI),
             Map.entry("false", TokenType.BOOL_LIT),
-            Map.entry("true", TokenType.BOOL_LIT)
+            Map.entry("true", TokenType.BOOL_LIT),
+            Map.entry("enkriptuj", TokenType.ENKRIPTUJ),
+            Map.entry("dekriptuj", TokenType.DEKRIPTUJ)
     );
 
     public Lexer(String source) {
