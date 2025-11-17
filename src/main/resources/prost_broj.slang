@@ -1,4 +1,4 @@
- broj prost(broj n){
+broj prost(broj n){
     ako(n <= 1){
         vrati 0;
     }

@@ -1,4 +1,3 @@
-
 zapocni_igru
 moj tekst x="Ovo je t";
 moje slovo='a';

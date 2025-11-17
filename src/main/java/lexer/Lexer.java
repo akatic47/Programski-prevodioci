@@ -23,7 +23,6 @@ public class Lexer {
             Map.entry("moje", TokenType.MOJE),
             Map.entry("zapocni_igru", TokenType.ZAPOCNI_IGRU),
             Map.entry("zavrsi_igru", TokenType.ZAVRSI_IGRU),
-            Map.entry("funkcija", TokenType.FUNKCIJA),
             Map.entry("ako", TokenType.AKO),
             Map.entry("ili", TokenType.ILI),
             Map.entry( "i", TokenType.I),
@@ -32,8 +31,8 @@ public class Lexer {
             Map.entry("vrati", TokenType.VRATI),
             Map.entry("upisi", TokenType.UPISI),
             Map.entry("napisi", TokenType.NAPISI),
-            Map.entry("false", TokenType.BOOL_LIT),
-            Map.entry("true", TokenType.BOOL_LIT),
+            Map.entry("tacno", TokenType.BOOL_LIT),
+            Map.entry("netacno", TokenType.BOOL_LIT),
             Map.entry("enkriptuj", TokenType.ENKRIPTUJ),
             Map.entry("dekriptuj", TokenType.DEKRIPTUJ)
     );
