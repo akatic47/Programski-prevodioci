@@ -2,6 +2,7 @@ package application;
 
 import lexer.Lexer;
 import lexer.token.Token;
+import lexer.token.TokenFormatter;
 import parser.AstNode;
 import parser.JsonPrinter;
 import parser.ParseException;
@@ -24,14 +25,13 @@ public class Application {
             // 1. učitaj fajl
             String code = Files.readString(Path.of(args[0]));
 
-            // Remove BOM if present
-            if (code.startsWith("\uFEFF")) {
-                code = code.substring(1);
-            }
-
             // 2. lexer
             Lexer lexer = new Lexer(code);
             List<Token> tokens = lexer.scanTokens();
+
+            // DEBUG: ispisi sve tokene
+            System.out.println(TokenFormatter.formatList(tokens));
+
 
             // 3. parser
             Parser parser = new Parser(tokens);

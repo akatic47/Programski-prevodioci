@@ -13,8 +13,8 @@ broj prost(broj n){
 }
 
 zapocni_igru
-moj broj broj = 17;
-ako(prost(broj)){
+moj broj br = 17;
+ako(prost(br)){
     napisi(1);
 }
 inace{

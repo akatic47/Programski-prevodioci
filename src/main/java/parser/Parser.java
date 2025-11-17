@@ -156,10 +156,41 @@ public class Parser {
     }
 
     private AstNode parseParam() {
+        // 1) tip
         AstNode type = parseType();
+
+        // 2) ime parametra
         Token name = consume(TokenType.IDENT, "Expected parameter name.");
-        return AstNode.node("Param", name, type);
+
+        // 3) optional dimensions: [], [expr], [expr][expr]...
+        List<AstNode> dims = new ArrayList<>();
+
+        while (match(TokenType.LBRACKET)) {
+
+            // Ako je odmah zatvorena '[ ]', onda je size = null
+            AstNode sizeExpr = null;
+
+            if (!check(TokenType.RBRACKET)) {
+                sizeExpr = parseExpression();   // DODATO → sada prihvata i literale i variable i izraze
+            }
+
+            consume(TokenType.RBRACKET, "Expected ']' after array dimension.");
+
+            // expression može biti null (za a[][])
+            if (sizeExpr != null)
+                dims.add(AstNode.node("ArrayDim", null, sizeExpr));
+            else
+                dims.add(AstNode.leaf("ArrayDim", null));
+        }
+
+        // 4) pravljenje AST čvora
+        if (!dims.isEmpty()) {
+            return AstNode.node("Param", name, type, AstNode.list("Dimensions", dims));
+        } else {
+            return AstNode.node("Param", name, type);
+        }
     }
+
 
     // =====================================================
     // BLOCK

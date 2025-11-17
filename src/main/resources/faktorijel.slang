@@ -1,9 +1,9 @@
 broj faktorijel(broj n){
     moj broj rez = 1;
-    moj broj i = 2;
-    radi(i <= n){
-        rez = rez * i;
-        i = i + 1;
+    moj broj br = 2;
+    radi(br <= n){
+        rez = rez * br;
+        br = br + 1;
     }
     vrati rez;
 }

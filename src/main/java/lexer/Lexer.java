@@ -75,9 +75,10 @@ public class Lexer {
             case '!' -> add(sc.match('=') ? TokenType.NEQ:TokenType.NE);
             case '"' -> string();
             case '\'' -> charLiteral();
-            case '\n' -> tokens.add(new Token(
-                    TokenType.NEWLINE, "\n", null, sc.getStartLine(), sc.getStartCol(), sc.getStartCol()
-            ));
+            //case '\n' -> tokens.add(new Token(
+            //        TokenType.NEWLINE, "\n", null, sc.getStartLine(), sc.getStartCol(), sc.getStartCol()
+            //));
+            case '\n' -> {}
             case ' ', '\r', '\t' -> {}
             default -> {
                 if (Character.isDigit(c)) number();

@@ -1,4 +1,4 @@
- niz transponuj(moj niz a[][], moj broj n, moj broj m) {
+ niz transponuj(niz a[][], broj n, broj m) {
     moj niz t[m][n];
     moj broj i;
     moj broj j;

@@ -1,7 +1,7 @@
 zapocni_igru
-moj broj i = 0;
-radi(i < 5){
-    napisi(i);
-    i = i + 1;
+moj broj br = 0;
+radi(br < 5){
+    napisi(br);
+    br = br + 1;
 }
 zavrsi_igru;
