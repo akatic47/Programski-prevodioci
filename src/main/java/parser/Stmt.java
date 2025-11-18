@@ -155,15 +155,18 @@ public abstract class Stmt {
         }
 
         public static class Param {
-            public final Token tip;
-            public final Token ime;
+            public final Token tip;      // originalni token tipa (broj / niz / ...)
+            public final Token ime;      // ime parametra
+            public final parser.Ast.Type parsedType;  // PARSIRANI TIP (sa dimenzijama!)
 
-            public Param(Token tip, Token ime) {
+            public Param(Token tip, Token ime, parser.Ast.Type parsedType) {
                 this.tip = tip;
                 this.ime = ime;
+                this.parsedType = parsedType;
             }
         }
     }
+
 
 
     // Prazna naredba ;

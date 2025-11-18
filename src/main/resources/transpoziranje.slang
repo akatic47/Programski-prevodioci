@@ -1,14 +1,14 @@
- niz transponuj(niz a[][], broj n, broj m) {
+niz transponuj(niz a, broj n, broj m) {
     moj niz t[m][n];
-    moj broj i;
-    moj broj j;
+    moj broj r;
+    moj broj c;
 
-    radi (i < n) {
-        radi (j < m) {
-            t[j][i] = a[i][j];
-            j = j + 1;
+    radi (r < n) {
+        radi (c < m) {
+            t[c][r] = a[r][c];
+            c = c + 1;
         }
-        i = i + 1;
+        r = r + 1;
     }
 
     vrati t;

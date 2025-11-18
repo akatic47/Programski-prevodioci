@@ -32,11 +32,11 @@ public class ParserAST {
     public Ast.Program parseProgram() {
         List<Ast.TopItem> items = new ArrayList<>();
 
-        // 1. Sve funkcije (dok god počinje sa tipom – to je definicija funkcije)
+        // 1. Sve funkcije
         while (!isAtEnd() && checkTip()) {
             Stmt.FunDecl funDecl = definicijaFunkcije();
 
-            // Pretvori Stmt.FunDecl u Ast.FuncDef
+            // Povratni tip funkcije (bez niza — tvoje pravilo)
             Ast.Type returnType = new Ast.Type(
                     switch (funDecl.tip.type) {
                         case BROJ -> Ast.Type.Kind.INT;
@@ -48,49 +48,70 @@ public class ParserAST {
                         default -> Ast.Type.Kind.VOID;
                     },
                     funDecl.tip,
-                    0 // rank (broj dimenzija) – za sada 0, jer funkcije ne vraćaju nizove
+                    0,                  // return type rank
+                    List.of()           // return type has no dimensions
             );
 
+            // Parametri funkcije (ovde koristimo parsedType!)
             List<Ast.Param> params = new ArrayList<>();
             for (Stmt.FunDecl.Param p : funDecl.parametri) {
-                Ast.Type paramType = new Ast.Type(
-                        switch (p.tip.type) {
-                            case BROJ -> Ast.Type.Kind.INT;
-                            case REALAN -> Ast.Type.Kind.REAL;
-                            case SLOVO -> Ast.Type.Kind.CHAR;
-                            case TEKST -> Ast.Type.Kind.STRING;
-                            case POGODAK -> Ast.Type.Kind.BOOL;
-                            case NIZ -> Ast.Type.Kind.ARRAY;
-                            default -> throw error(p.tip, "Nepoznat tip parametra");
-                        },
-                        p.tip,
-                        0 // za sada bez dimenzija u parametrima
-                );
-                params.add(new Ast.Param(p.ime, paramType));
+                params.add(new Ast.Param(p.ime, p.parsedType));
             }
 
             Ast.FuncDef funcDef = new Ast.FuncDef(
                     funDecl.ime,
                     params,
                     returnType,
-                    ((Stmt.Block)funDecl.telo).statements  // telo funkcije
+                    ((Stmt.Block) funDecl.telo).statements
             );
 
             items.add(funcDef);
         }
-        // Ako posle funkcija ima deklaracija (moj broj x;), dodaj kao TopVarDecl
+
+        // 2. Globalne deklaracije (moj broj x;)
         while (match(TokenType.MOJ, TokenType.MOJE)) {
             Stmt.VarDecl decl = deklaracija();
             items.add(new Ast.TopVarDecl(decl));
         }
 
-        // 2. Glavni blok – zapocni_igru ... zavrsi_igru
+        // 3. Glavni blok
         Stmt.Block mainBlock = glavniBlok();
         items.add(new Ast.TopStmt(mainBlock));
 
-        // 3. Vrati Ast.Program
         return new Ast.Program(items);
     }
+
+
+    // Parse tipa sa opcionalnim dimenzijama niza: broj, niz, niz[][], niz[m][n]...
+    private Ast.Type parseTypeWithArrayDims(Token tipToken) {
+        Ast.Type.Kind kind =
+                switch (tipToken.type) {
+                    case BROJ -> Ast.Type.Kind.INT;
+                    case REALAN -> Ast.Type.Kind.REAL;
+                    case SLOVO -> Ast.Type.Kind.CHAR;
+                    case TEKST -> Ast.Type.Kind.STRING;
+                    case POGODAK -> Ast.Type.Kind.BOOL;
+                    case NIZ -> Ast.Type.Kind.ARRAY;
+                    default -> Ast.Type.Kind.VOID;
+                };
+
+        List<Expr> dims = new ArrayList<>();
+        int rank = 0;
+
+        // čitanje dimenzija npr. niz a[][], niz a[m][n]
+        while (match(TokenType.LBRACKET)) {
+            if (!check(TokenType.RBRACKET)) {
+                dims.add(izraz());
+            } else {
+                dims.add(null);
+            }
+            consume(TokenType.RBRACKET, "Očekivano ']' u deklaraciji niza");
+            rank++;
+        }
+
+        return new Ast.Type(kind, tipToken, rank, dims);
+    }
+
 
     private Stmt.FunDecl definicijaFunkcije() {
         Token tip = consumeTip("Očekivan tip povratne vrednosti funkcije");
@@ -111,13 +132,20 @@ public class ParserAST {
 
     private List<Stmt.FunDecl.Param> listaParametara() {
         List<Stmt.FunDecl.Param> parametri = new ArrayList<>();
+
         do {
             Token tip = consumeTip("Očekivan tip parametra");
+            Ast.Type parsedType = parseTypeWithArrayDims(tip);
+
             Token ime = consume(TokenType.IDENT, "Očekivan identifikator parametra");
-            parametri.add(new Stmt.FunDecl.Param(tip, ime));
-        } while (match(TokenType.SEPARATOR_COMMA));
+
+            parametri.add(new Stmt.FunDecl.Param(tip, ime, parsedType));
+        }
+        while (match(TokenType.SEPARATOR_COMMA));
+
         return parametri;
     }
+
 
     // GLAVNI BLOK
     private Stmt.Block glavniBlok() {
