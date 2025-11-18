@@ -488,7 +488,7 @@ public class Parser {
 
     private AstNode parsePrimary() {
 
-        if (match(TokenType.INT_LIT, TokenType.CH_LIT, TokenType.STR_LIT, TokenType.BOOL_LIT)) {
+        if (match(TokenType.INT_LIT, TokenType.REAL_LIT, TokenType.CH_LIT, TokenType.STR_LIT, TokenType.BOOL_LIT)) {
             return AstNode.leaf("Literal", previousToken());
         }
 

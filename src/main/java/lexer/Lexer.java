@@ -90,14 +90,34 @@ public class Lexer {
     }
 
     private void number() {
+        boolean isReal = false;
+
+        // Ceo broj pre tačke
         while (Character.isDigit(sc.peek())) sc.advance();
-        String text = source.substring(sc.getStartIdx(), sc.getCur());
-        char nextChar = sc.peek();
-        if (Character.isAlphabetic(nextChar)) {
-            throw error("Error: Character in int literal");
+
+        // Deo posle tačke (realan broj)
+        if (sc.peek() == '.' && Character.isDigit(sc.peekNext())) {
+            isReal = true;
+            sc.advance(); // pojedi '.'
+            while (Character.isDigit(sc.peek())) sc.advance();
         }
-        addLiteralInt(text);
+
+        String text = source.substring(sc.getStartIdx(), sc.getCur());
+
+        // Ako iza broja stoji slovo — greška
+        char next = sc.peek();
+        if (Character.isAlphabetic(next)) {
+            throw error("Error: Invalid numeric literal");
+        }
+
+        if (isReal) {
+            tokens.add(new Token(TokenType.REAL_LIT, text, null,
+                    sc.getStartLine(), sc.getStartCol(), sc.getCol() - 1));
+        } else {
+            addLiteralInt(text);
+        }
     }
+
 
     private void string() {
         StringBuilder literal = new StringBuilder();
