@@ -18,10 +18,9 @@ public abstract class Expr {
 
     public abstract <R> R accept(Visitor<R> v);
 
-    // Literal vrednosti: INT_LIT, REAL_LIT, STR_LIT, CH_LIT, BOOL_LIT
     public static final class Literal extends Expr {
         public final Token token;
-        public final Object value; // može biti Integer, Double, String, Character, Boolean
+        public final Object value;
 
         public Literal(Token token, Object value) {
             this.token = token;
@@ -34,7 +33,6 @@ public abstract class Expr {
         }
     }
 
-    // Identifikator
     public static final class Ident extends Expr {
         public final Token name; // IDENT
 
@@ -48,7 +46,6 @@ public abstract class Expr {
         }
     }
 
-    // Identifikator sa indeksima (nizovi)
     public static final class Index extends Expr {
         public final Token name; // IDENT
         public final List<Expr> indices;
@@ -64,7 +61,6 @@ public abstract class Expr {
         }
     }
 
-    // Grupisani izraz: (expr)
     public static final class Grouping extends Expr {
         public final Expr inner;
 
@@ -78,7 +74,6 @@ public abstract class Expr {
         }
     }
 
-    // Poziv funkcije: f(args...)
     public static final class Call extends Expr {
 
         public final Token callee;  // IDENT
@@ -93,9 +88,8 @@ public abstract class Expr {
         }
     }
 
-    // Unarni operator: !expr ili -expr
     public static final class Unary extends Expr {
-        public final Token operator; // NE, SUBTRACT
+        public final Token operator;
         public final Expr right;
 
         public Unary(Token operator, Expr right) {
@@ -109,7 +103,6 @@ public abstract class Expr {
         }
     }
 
-    // BinarnI operator: +, -, *, /, %, <, <=, >, >=, ==, !=, i, ili
     public static final class Binary extends Expr {
         public final Expr left;
         public final Token op;

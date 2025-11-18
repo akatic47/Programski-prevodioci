@@ -108,7 +108,6 @@ public final class JsonAstPrinter implements Expr.Visitor<String>, Stmt.Visitor<
         return "{ \"type\": \"binary\", \"op\": \"" + e.op.lexeme + "\", \"left\": " + e.left.accept(this) + ", \"right\": " + e.right.accept(this) + " }";
     }
 
-    // ====================== Stmt ======================
     @Override public String visitVarDecl(Stmt.VarDecl s) {
         String init = s.initializer != null ? ", \"init\": " + s.initializer.accept(this) : "";
         return "{ \"stmt\": \"varDecl\", \"type\": \"" + s.type + "\", \"names\": [\"" + s.name.lexeme + "\"]" + init + " }";

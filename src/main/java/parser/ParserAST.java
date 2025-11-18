@@ -15,7 +15,6 @@ public class ParserAST {
     }
 
 
-    // Metoda za prepoznavanje tipa
     private Token consumeTip(String message) {
         if (match(TokenType.BROJ, TokenType.REALAN, TokenType.SLOVO, TokenType.TEKST, TokenType.POGODAK, TokenType.NIZ)) {
             return previous();
@@ -28,15 +27,12 @@ public class ParserAST {
                 || check(TokenType.TEKST) || check(TokenType.POGODAK) || check(TokenType.NIZ);
     }
 
-    // GLAVNI PROGRAM
     public Ast.Program parseProgram() {
         List<Ast.TopItem> items = new ArrayList<>();
 
-        // 1. Sve funkcije
         while (!isAtEnd() && checkTip()) {
             Stmt.FunDecl funDecl = definicijaFunkcije();
 
-            // Povratni tip funkcije (bez niza — tvoje pravilo)
             Ast.Type returnType = new Ast.Type(
                     switch (funDecl.tip.type) {
                         case BROJ -> Ast.Type.Kind.INT;
@@ -48,11 +44,10 @@ public class ParserAST {
                         default -> Ast.Type.Kind.VOID;
                     },
                     funDecl.tip,
-                    0,                  // return type rank
-                    List.of()           // return type has no dimensions
+                    0,
+                    List.of()
             );
 
-            // Parametri funkcije (ovde koristimo parsedType!)
             List<Ast.Param> params = new ArrayList<>();
             for (Stmt.FunDecl.Param p : funDecl.parametri) {
                 params.add(new Ast.Param(p.ime, p.parsedType));
@@ -68,13 +63,14 @@ public class ParserAST {
             items.add(funcDef);
         }
 
-        // 2. Globalne deklaracije (moj broj x;)
         while (match(TokenType.MOJ, TokenType.MOJE)) {
             Stmt.VarDecl decl = deklaracija();
-            items.add(new Ast.TopVarDecl(decl));
+            if (decl != null) {
+                items.add(new Ast.TopVarDecl(decl));
+            }
         }
 
-        // 3. Glavni blok
+
         Stmt.Block mainBlock = glavniBlok();
         items.add(new Ast.TopStmt(mainBlock));
 
@@ -82,7 +78,6 @@ public class ParserAST {
     }
 
 
-    // Parse tipa sa opcionalnim dimenzijama niza: broj, niz, niz[][], niz[m][n]...
     private Ast.Type parseTypeWithArrayDims(Token tipToken) {
         Ast.Type.Kind kind =
                 switch (tipToken.type) {
@@ -98,7 +93,6 @@ public class ParserAST {
         List<Expr> dims = new ArrayList<>();
         int rank = 0;
 
-        // čitanje dimenzija npr. niz a[][], niz a[m][n]
         while (match(TokenType.LBRACKET)) {
             if (!check(TokenType.RBRACKET)) {
                 dims.add(izraz());
@@ -120,7 +114,7 @@ public class ParserAST {
 
         List<Stmt.FunDecl.Param> parametri = new ArrayList<>();
         if (!check(TokenType.RPAREN)) {
-            parametri = listaParametara(); // vraća List<Param>, baš ono što FunDecl očekuje
+            parametri = listaParametara();
         }
 
         consume(TokenType.RPAREN, "Očekivano ')' nakon liste parametara");
@@ -147,7 +141,6 @@ public class ParserAST {
     }
 
 
-    // GLAVNI BLOK
     private Stmt.Block glavniBlok() {
         consume(TokenType.ZAPOCNI_IGRU, "Očekivano 'zapocni_igru'");
         List<Stmt> statements = new ArrayList<>();
@@ -159,9 +152,7 @@ public class ParserAST {
         return new Stmt.Block(statements);
     }
 
-    // NAREDBE
     private Stmt naredba() {
-        // 1. Blok { ... } – može biti bilo gde (npr. posle radi, posle inace, samostalno)
         if (match(TokenType.LBRACE)) {
             List<Stmt> stmts = new ArrayList<>();
             while (!check(TokenType.RBRACE) && !isAtEnd()) {
@@ -178,7 +169,6 @@ public class ParserAST {
         if (match(TokenType.VRATI)) return vratiNaredba();
         if (match(TokenType.SEMICOLON)) return new Stmt.Empty();
 
-        // Dodela ili poziv funkcije (počinje sa IDENT)
         if (check(TokenType.IDENT)) {
             return dodelaIliPoziv();
         }
@@ -186,7 +176,6 @@ public class ParserAST {
         throw error(peek(), "Nepoznata naredba");
     }
 
-    // DEKLARACIJA
     private Stmt.VarDecl deklaracija() {
         boolean isMoje = previous().type == TokenType.MOJE;
 
@@ -200,11 +189,9 @@ public class ParserAST {
 
         Token name = consume(TokenType.IDENT, "Očekivano ime promenljive");
 
-        // Nizovi: moj niz n[5][a+1] ili moj broj x
         List<Expr> dimensions = new ArrayList<>();
         while (match(TokenType.LBRACKET)) {
             if (match(TokenType.RBRACKET)) {
-                // prazan [] → nepoznata veličina (npr. moj niz n[][])
                 dimensions.add(null);
             } else {
                 dimensions.add(izraz());
@@ -212,7 +199,6 @@ public class ParserAST {
             }
         }
 
-        // Inicijalizator: = izraz
         Expr initializer = null;
         if (match(TokenType.ASSIGN)) {
             initializer = izraz();
@@ -220,21 +206,18 @@ public class ParserAST {
 
         consume(TokenType.SEMICOLON, "Očekivano ';' nakon deklaracije");
 
-        // Napomena: tvoja VarDecl klasa ima String type – mi ćemo proslediti lexeme
         return new Stmt.VarDecl(typeToken.lexeme, name, initializer);
     }
     private Expr lVrednost() {
         Token name = consume(TokenType.IDENT, "Očekivan identifikator");
         List<Expr> indeksi = new ArrayList<>();
 
-        // indeksi niza
         while (match(TokenType.LBRACKET)) {
             indeksi.add(izraz());
             consume(TokenType.RBRACKET, "Očekivano ']' u indeksu niza");
         }
 
         if (match(TokenType.LPAREN)) {
-            // Poziv funkcije u izrazu LVREDNOST
             List<Expr> args = new ArrayList<>();
             if (!check(TokenType.RPAREN)) {
                 do {
@@ -242,7 +225,6 @@ public class ParserAST {
                 } while (match(TokenType.SEPARATOR_COMMA));
             }
             consume(TokenType.RPAREN, "Očekivano ')' nakon argumenata");
-            // LVREDNOST može biti funkcijski poziv, vraća Expr.Call
             return new Expr.Call(name, args);
         }
 
@@ -253,25 +235,21 @@ public class ParserAST {
         List<Expr> args = new ArrayList<>();
 
         do {
-            args.add(izraz());   // svaki argument je običan izraz
+            args.add(izraz());
         } while (match(TokenType.SEPARATOR_COMMA));
 
         return args;
     }
 
-    // DODELA ili POZIV FUNKCIJE
     private Stmt dodelaIliPoziv() {
-        // LVREDNOST: identifikator ili indeksirani niz
         Expr target = lVrednost();
 
-        // Ako je sledeći token '=' → dodela
         if (match(TokenType.ASSIGN)) {
             Expr value = izraz();
             consume(TokenType.SEMICOLON, "Očekivan ';' nakon dodele");
             return new Stmt.Assign(target, value);
         }
 
-        // Ako je sledeći token '(' → poziv funkcije (samo ExpressionStmt)
         if (target instanceof Expr.Ident || target instanceof Expr.Index) {
             if (match(TokenType.LPAREN)) {
                 List<Expr> args = new ArrayList<>();
@@ -299,33 +277,48 @@ public class ParserAST {
 
 
     private Stmt.ExpressionStmt napisi() {
+        Token funcTok = previous();
+
         consume(TokenType.LPAREN, "Očekivano '(' nakon 'napisi'");
         Expr argument = izraz();
         consume(TokenType.RPAREN, "Očekivano ')' nakon argumenta");
         consume(TokenType.SEMICOLON, "Očekivano ';' nakon 'napisi'");
 
-        Token napisiToken = previous();
-        Token fakeCallee = new Token(TokenType.IDENT, "napisi", null,
-                napisiToken.line, napisiToken.colStart, napisiToken.colEnd);
+        Token callee = new Token(
+                TokenType.IDENT,
+                "napisi",
+                null,
+                funcTok.line,
+                funcTok.colStart,
+                funcTok.colEnd
+        );
 
-        Expr.Call call = new Expr.Call(napisiToken, List.of(argument));
-
+        Expr.Call call = new Expr.Call(callee, List.of(argument));
         return new Stmt.ExpressionStmt(call);
     }
 
+
     private Stmt.ExpressionStmt upisi() {
+        Token funcTok = previous();
+
         consume(TokenType.LPAREN, "Očekivano '(' nakon 'upisi'");
         Token varName = consume(TokenType.IDENT, "Očekivano ime promenljive u 'upisi'");
         consume(TokenType.RPAREN, "Očekivano ')' nakon imena");
         consume(TokenType.SEMICOLON, "Očekivano ';' nakon 'upisi'");
 
-        Token upisiToken = new Token(TokenType.IDENT, "upisi", null,
-                varName.line, varName.colStart, varName.colEnd);
+        Token callee = new Token(
+                TokenType.IDENT,
+                "upisi",
+                null,
+                funcTok.line,
+                funcTok.colStart,
+                funcTok.colEnd
+        );
 
-        Expr.Call call = new Expr.Call(upisiToken,List.of(new Expr.Ident(varName)));
-
+        Expr.Call call = new Expr.Call(callee, List.of(new Expr.Ident(varName)));
         return new Stmt.ExpressionStmt(call);
     }
+
 
     private Stmt.If ifNaredba() {
 
@@ -343,7 +336,6 @@ public class ParserAST {
 
         Stmt elseBranch = null;
         if (match(TokenType.INACE)) {
-            // OBAVEZNO {} posle inace
             consume(TokenType.LBRACE, "Očekivano '{' posle 'inace'");
             List<Stmt> elseStmts = new ArrayList<>();
             while (!check(TokenType.RBRACE) && !isAtEnd()) {
@@ -384,7 +376,6 @@ public class ParserAST {
         return new Stmt.Block(statements);
     }
 
-    // IZRAZI
     private Expr izraz() {
         return logIli();
     }
@@ -489,13 +480,9 @@ public class ParserAST {
                 }
                 consume(TokenType.RPAREN, "Očekivano ')' nakon argumenata");
 
-
-                Token callTok = new Token(TokenType.IDENT, name.lexeme + "(", null,
-                        name.line, name.colStart, name.colEnd);
-
-
-                return new Expr.Call(callTok, args);
+                return new Expr.Call(name, args);
             }
+
 
 
             return new Expr.Ident(name);

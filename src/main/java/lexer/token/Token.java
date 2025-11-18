@@ -3,18 +3,27 @@ package lexer.token;
 public class Token {
     public final TokenType type;
     public final String lexeme;
-    public final Integer literal;
+    public final Object literal;
     public final int line, colStart, colEnd;
-    public Token(TokenType t, String lx, Integer lit, int line, int cs, int ce) {
-        this.type=t; this.lexeme=lx; this.literal=lit; this.line=line; this.colStart=cs; this.colEnd=ce;
+
+    public Token(TokenType type, String lexeme, Object literal,
+                 int line, int colStart, int colEnd) {
+        this.type = type;
+        this.lexeme = lexeme;
+        this.literal = literal;
+        this.line = line;
+        this.colStart = colStart;
+        this.colEnd = colEnd;
     }
-    public String toString(){
-        return (type+" '"+lexeme+"' at line: "+line+", column: "+colStart).
-                replace("\n", "\\n").
-                replace("\0", "\\0"); }
+
+    @Override
+    public String toString() {
+        return (type + " '" + lexeme + "' lit=" + literal + " at line " + line)
+                .replace("\n", "\\n")
+                .replace("\0", "\\0");
+    }
 
     public String formatted() {
         return TokenFormatter.format(this);
     }
-
 }

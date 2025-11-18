@@ -24,11 +24,10 @@ public abstract class Stmt {
 
     public abstract <R> R accept(Visitor<R> v);
 
-    // Deklaracija promenljive
     public static final class VarDecl extends Stmt {
         public final String type;   // broj, realan, slovo, tekst, pogodak, niz
         public final Token name;    // IDENT
-        public final Expr initializer; // može biti null
+        public final Expr initializer;
 
         public VarDecl(String type, Token name, Expr initializer) {
             this.type = type;
@@ -42,7 +41,6 @@ public abstract class Stmt {
         }
     }
 
-    // Dodela vrednosti promenljivoj ili nizu
     public static final class Assign extends Stmt {
         public final Expr target; // VariableExpr ili Index
         public final Expr value;
@@ -58,11 +56,10 @@ public abstract class Stmt {
         }
     }
 
-    // If naredba
     public static final class If extends Stmt {
         public final Expr condition;
         public final Stmt thenBranch;
-        public final Stmt elseBranch; // može biti null
+        public final Stmt elseBranch;
 
         public If(Expr condition, Stmt thenBranch, Stmt elseBranch) {
             this.condition = condition;
@@ -76,7 +73,6 @@ public abstract class Stmt {
         }
     }
 
-    // While / radi petlja
     public static final class While extends Stmt {
         public final Expr condition;
         public final Stmt body;
@@ -92,7 +88,6 @@ public abstract class Stmt {
         }
     }
 
-    // Return / vrati naredba
     public static final class Return extends Stmt {
         public final Expr value;
 
@@ -106,7 +101,6 @@ public abstract class Stmt {
         }
     }
 
-    // Blok naredbi { stmt; stmt; ... }
     public static final class Block extends Stmt {
         public final List<Stmt> statements;
 
@@ -120,7 +114,6 @@ public abstract class Stmt {
         }
     }
 
-    // Izraz kao naredba (npr. poziv funkcije, napisi/upisi)
     public static final class ExpressionStmt extends Stmt {
         public final Expr expression;
 
@@ -155,9 +148,9 @@ public abstract class Stmt {
         }
 
         public static class Param {
-            public final Token tip;      // originalni token tipa (broj / niz / ...)
+            public final Token tip;      // originalni token tipa broj,niz,itd.
             public final Token ime;      // ime parametra
-            public final parser.Ast.Type parsedType;  // PARSIRANI TIP (sa dimenzijama!)
+            public final parser.Ast.Type parsedType;
 
             public Param(Token tip, Token ime, parser.Ast.Type parsedType) {
                 this.tip = tip;
@@ -169,7 +162,6 @@ public abstract class Stmt {
 
 
 
-    // Prazna naredba ;
     public static final class Empty extends Stmt {
         @Override
         public <R> R accept(Visitor<R> v) {

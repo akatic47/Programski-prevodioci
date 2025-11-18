@@ -9,9 +9,6 @@ import java.util.List;
 
 public final class Ast {
 
-    // ============================================================
-    // PROGRAM
-    // ============================================================
     public static final class Program {
         public final List<TopItem> items;
 
@@ -20,9 +17,6 @@ public final class Ast {
         }
     }
 
-    // ============================================================
-    // TOP LEVEL
-    // ============================================================
     public interface TopItem {}
 
     public static final class TopVarDecl implements TopItem {
@@ -35,9 +29,6 @@ public final class Ast {
         public TopStmt(Stmt stmt) { this.stmt = stmt; }
     }
 
-    // ============================================================
-    // FUNKCIJA
-    // ============================================================
     public static final class FuncDef implements TopItem {
         public final Token name;
         public final List<Param> params;
@@ -52,9 +43,6 @@ public final class Ast {
         }
     }
 
-    // ============================================================
-    // PARAMETAR
-    // ============================================================
     public static final class Param {
         public final Token name;
         public final Type type;
@@ -65,9 +53,6 @@ public final class Ast {
         }
     }
 
-    // ============================================================
-    // TIP
-    // ============================================================
     public static class Type {
 
         public enum Kind {
@@ -77,9 +62,8 @@ public final class Ast {
         public final Kind kind;
         public final Token token;
         public final int rank;          // broj dimenzija niza
-        public final List<Expr> dims;   // dimenzije (null = prazan [])
+        public final List<Expr> dims;   // dimenzije
 
-        // NOVI FULL KONSTRUKTOR
         public Type(Kind kind, Token token, int rank, List<Expr> dims) {
             this.kind = kind;
             this.token = token;
@@ -87,7 +71,6 @@ public final class Ast {
             this.dims = dims;
         }
 
-        // BACKWARD KOMPATIBILNI KONSTRUKTOR
         public Type(Kind kind, Token token, int rank) {
             this(kind, token, rank, new ArrayList<>());
         }
