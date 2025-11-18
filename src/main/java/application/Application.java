@@ -1,12 +1,13 @@
 package application;
 
+
 import lexer.Lexer;
 import lexer.token.Token;
 import lexer.token.TokenFormatter;
-import parser.AstNode;
-import parser.JsonPrinter;
-import parser.ParseException;
-import parser.Parser;
+import parser.Ast;
+import parser.JsonAstPrinter;
+import parser.ParseError;
+import parser.ParserAST;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -32,18 +33,17 @@ public class Application {
             // DEBUG: ispisi sve tokene
             System.out.println(TokenFormatter.formatList(tokens));
 
+            ParserAST parser = new ParserAST(tokens);
 
-            // 3. parser
-            Parser parser = new Parser(tokens);
-            AstNode ast = parser.parse();
+            Ast.Program program = parser.parseProgram();
 
             // 4. JSON ispis AST-a
-            JsonPrinter printer = new JsonPrinter();
-            String output = printer.print(ast);
+            JsonAstPrinter printer = new JsonAstPrinter();
+             System.out.println(printer.print(program));
 
-            System.out.println(output);
+            //  System.out.println(output);
 
-        } catch (ParseException e) {
+        } catch (ParseError e) {
             System.err.println("Sintaksna greška: " + e.getMessage());
             System.exit(65);
 
